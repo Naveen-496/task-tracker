@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Button from "../components/button";
 import AddTask from "./AddTask";
+import AddUser from "../users/AddUser";
 
 const initialTasks = [
   {
@@ -29,14 +30,17 @@ const initialTasks = [
 type Tasks = typeof initialTasks;
 
 const Tasks = () => {
-  const [tasks, setTasks] = useState<Tasks>([...initialTasks]);
+  const [tasks] = useState<Tasks>([...initialTasks]);
 
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="w-full max-w-6xl mx-auto p-6">
         <div className="w-full flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-gray-800">Tasks</h2>
-          <AddTask />
+          <div className="flex gap-4">
+            <AddTask />
+            <AddUser />
+          </div>
         </div>
 
         <div className="overflow-x-auto bg-white shadow-md rounded-lg">

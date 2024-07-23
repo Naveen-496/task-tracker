@@ -1,31 +1,30 @@
-import { useState } from "react";
-import Button from "../components/button";
 import { IoMdClose } from "react-icons/io";
-import TaskForm from "./TaskForm";
+import Button from "../components/button";
+import { useState } from "react";
+import UserForm from "./UserForm";
 
-const AddTask = () => {
+const AddUser = () => {
   const [showAdd, setShowAdd] = useState(false);
-
   return (
     <div>
       <Button
         onClick={() => setShowAdd(true)}
-        className="bg-blue-500 text-white hover:bg-blue-600"
+        className="bg-purple-500 text-white hover:bg-purple-600"
       >
-        Add Task
+        Add User
       </Button>
 
       {showAdd && (
         <div
           onClick={() => setShowAdd(false)}
-          className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50"
+          className="fixed inset-0 right-0 z-50"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white shadow-lg rounded-lg p-6 max-w-lg w-full mx-4 md:mx-0"
+            className="bg-white fixed right-0 shadow-lg rounded-lg p-6 max-w-lg w-full  md:mx-0"
           >
             <div className="w-full flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Add New Task</h2>
+              <h2 className="text-xl font-semibold">New User</h2>
               <button
                 className="p-2 hover:bg-gray-100 rounded-md transition-all"
                 onClick={() => setShowAdd(false)}
@@ -33,7 +32,8 @@ const AddTask = () => {
                 <IoMdClose size={24} />
               </button>
             </div>
-            <TaskForm closeForm={() => setShowAdd(false)} />
+
+            <UserForm closeForm={() => setShowAdd(false)} />
           </div>
         </div>
       )}
@@ -41,4 +41,4 @@ const AddTask = () => {
   );
 };
 
-export default AddTask;
+export default AddUser;
