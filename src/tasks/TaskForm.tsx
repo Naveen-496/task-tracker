@@ -1,10 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormEvent, useEffect, useState } from "react";
 import Button from "../components/button";
+import { useDispatch } from "react-redux";
+import { fetchTasks } from "./tasks-slice";
+import { AppDispatch } from "../store";
+import { User } from "../types";
 
 const TaskForm = ({ closeForm }: { closeForm: () => void }) => {
-  const [task, setTask] = useState({ title: "", priority: "", assignee: "" });
-  const [users, setUsers] = useState([]);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const [users, setUsers] = useState<User[]>([]);
+  const [task, setTask] = useState({ title: "", priority: "", assigneeId: "" });
 
   async function fetchUsers() {
     const response = await fetch("/api/users");
@@ -14,6 +20,12 @@ const TaskForm = ({ closeForm }: { closeForm: () => void }) => {
   }
 
   const handleSubmit = async (e: FormEvent) => {
+    if (!task.assigneeId) {
+      task.assigneeId = String(users[0].id);
+    }
+    if (!task.priority) {
+      task.priority = "LOW";
+    }
     console.log(task);
     e.preventDefault();
 
@@ -22,13 +34,18 @@ const TaskForm = ({ closeForm }: { closeForm: () => void }) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(task),
+      body: JSON.stringify({
+        ...task,
+        createdDate: new Date(),
+        assigneeId: Number(task.assigneeId),
+      }),
     };
     const response = await fetch("/api/tasks", options);
     const data = await response.json();
     console.log("Response Data: ", data);
-    setTask({ title: "", priority: "", assignee: "" });
+    setTask({ title: "", priority: "", assigneeId: "" });
     closeForm();
+    dispatch(fetchTasks());
   };
 
   const handleFieldsChange = (
@@ -73,7 +90,9 @@ const TaskForm = ({ closeForm }: { closeForm: () => void }) => {
           onChange={handleFieldsChange}
         >
           {users.map((u: any) => (
-            <option value={u.id}>{u.name}</option>
+            <option key={u.name} value={u.id}>
+              {u.name}
+            </option>
           ))}
         </select>
       </div>
@@ -90,11 +109,11 @@ const TaskForm = ({ closeForm }: { closeForm: () => void }) => {
           name="priority"
           onChange={handleFieldsChange}
         >
-          <option className="font-bold" value="low">
+          <option className="font-bold" value="LOW">
             Low
           </option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="HIGH">High</option>
         </select>
       </div>
 

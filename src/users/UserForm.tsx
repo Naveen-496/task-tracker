@@ -1,30 +1,76 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import Button from "../components/button";
 
 const UserForm = ({ closeForm }: { closeForm: () => void }) => {
   const [user, setUser] = useState({ name: "", email: "" });
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | undefined>(undefined);
+  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
 
   const handleSubmit = async (e: FormEvent) => {
-    console.log(user);
     e.preventDefault();
-    if (!user.name || !user.email) return;
+    if (!user.name || !user.email || !file) return;
 
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(user),
-    };
-    const response = await fetch("/api/users", options);
-    const data = await response.json();
-    console.log("Response Data: ", data);
-    setUser({ name: "", email: "" });
-    closeForm();
+    const formData = new FormData();
+    formData.append("name", user.name);
+    formData.append("email", user.email);
+    formData.append("avatarImage", file);
+
+    try {
+      const response = await fetch("/api/users/with-profile", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      console.log("Response Data: ", data);
+      setUser({ name: "", email: "" });
+      setFile(undefined);
+      closeForm();
+    } catch (error) {
+      console.error("Error saving user: ", error);
+    }
+  };
+  const onClickFile = () => {
+    if (fileRef) {
+      fileRef.current?.click();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
     <form>
+      <div
+        onClick={onClickFile}
+        className="mb-4 w-[100px] h-[100px] bg-green-200 rounded-full m-auto flex items-center justify-center cursor-pointer overflow-hidden"
+      >
+        <input
+          onChange={handleFileChange}
+          className="hidden"
+          type="file"
+          ref={fileRef}
+        />
+        {file && imageUrl ? (
+          <img
+            src={imageUrl}
+            alt="Selected file"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span className="text-gray-500">Upload</span>
+        )}
+      </div>
+
       <div className="mb-4">
         <label
           htmlFor="name"
@@ -47,7 +93,7 @@ const UserForm = ({ closeForm }: { closeForm: () => void }) => {
 
       <div className="mb-4">
         <label
-          htmlFor="assignee"
+          htmlFor="email"
           className="block text-sm font-medium text-gray-700"
         >
           Email

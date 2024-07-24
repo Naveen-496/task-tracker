@@ -10,7 +10,7 @@ const AddTask = () => {
     <div>
       <Button
         onClick={() => setShowAdd(true)}
-        className="bg-blue-500 text-white hover:bg-blue-600"
+        className="bg-blue-500 text-white hover:bg-blue-600 text-center flex items-center justify-center"
       >
         Add Task
       </Button>
